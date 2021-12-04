@@ -1,5 +1,5 @@
 /*  
-Simple Puzzle like Game.
+Simple Number Puzzle like Game.
 Author: Raghuvir Gondaliya.
 
 Arrange the numbers in ascending order to win
@@ -26,12 +26,13 @@ int* addressAt(int *, int, int);
 // global variables
 char score = 0;
 char level = 1;
+int moves = -1;
 char puzzleSize = 2;
 char TOT_PUZZLES = 3;
 char currentPuzzleIndex = 0;
 int puzzle2x2[2][2] = {{1, 0} , {3, 2}};
-int puzzle3x3[3][3] = {{1, 2, 3}, {4, 0, 5}, {7, 8, 6}};
-int puzzle4x4[4][4] = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 0}, {13, 14, 15, 12}};
+int puzzle3x3[3][3] = {{5, 2, 3}, {4, 0, 1}, {8, 7, 6}};
+int puzzle4x4[4][4] = {{1, 4, 3, 15}, {10, 7, 13, 8}, {9, 5, 11, 0}, {2, 14, 6, 12}};
 int *puzzels[] = { &puzzle2x2[0][0],     // store base addresses
                    &puzzle3x3[0][0],
                    &puzzle4x4[0][0]
@@ -41,10 +42,10 @@ int *puzzels[] = { &puzzle2x2[0][0],     // store base addresses
 
 int main()
 {
-    int isSolved = 0;
-    printf("\n\n###########");
-    printf("---------------- (:) RAGHUVIR'S  <-->  PUZZLES (:) ------------------");
-    printf("############\n\n");
+    char isSolved = 0;
+    printf("\n\n####");
+    printf("_________________________RAGHUVIR'S_____PUZZLES_________________________");
+    printf("####\n\n");
     isSolved = servePuzzle(puzzels[currentPuzzleIndex], puzzleSize);
     if(isSolved)
     {
@@ -53,7 +54,10 @@ int main()
         {
             currentPuzzleIndex++;
             if(currentPuzzleIndex == TOT_PUZZLES)
+            {
+                printf("\n\tNo more puzzles to play...");
                 return 0;
+            }
             puzzleSize++;
             score = 0;
             level++;
@@ -74,20 +78,22 @@ int servePuzzle(int *pzl, int size)
     {
         if(changes)
         {
+            moves++;
             displayPuzzle(pzl);
-            printf("\n  SCORE: %d\tLEVEL: %d\n  Wanna Quit? - Press 'Q'.\n", score, level);
+            printf("\n  MOVES: %d\tSCORE: %d\tLEVEL: %d\n  Wanna Quit? - Press 'Q'.\n", moves, score, level);
             printf("  Enter your command(i/k/j/l): ");
         }
-        do      // get command until valid input (disable other inputs)
+        do
         {
-            cmd = getch();
+            cmd = getch();  // get valid cmd
         } while (cmd != 'i' && cmd != 'j' && cmd != 'k' && cmd != 'l' && cmd != 'Q');
         changes = executeCmd(pzl, cmd);
         winStatus = checkPuzzle(pzl);
         if(winStatus)
         {
+            moves = -1;
             displayPuzzle(pzl);
-            printf("\n\n\n\n\n\n\n\t0_0    -->    Congratulations    <--    0_0\n\n\t\tYou moved to the next step !\n\n\t\tSCORE from %d to %d\n\t\tLEVEL %d\n\n\n\n\n", score, score+1, level);
+            printf("\n\n\n\n\n\n\n\t0_0    -->    Congratulations    <--    0_0\n\n\t\tYou moved to the next step !\n\n\t\tscore %d to %d in level %d\n\n\n\n\n", score, score+1, level);
             // scramble the elements to make it difficult !
             swapElements(addressAt(pzl, score, score), addressAt(pzl, score, 1+score));
             swapElements(addressAt(pzl, score, score), addressAt(pzl, 1+score, score));
@@ -95,7 +101,7 @@ int servePuzzle(int *pzl, int size)
         }
     } while (cmd != 'Q');
     if(cmd == 'Q')
-        return 0;  
+        getch();  
     return winStatus;
 }
 
@@ -201,7 +207,6 @@ int checkPuzzle(int *pzl)
     pzl++;
     for(int i = 0; i < (puzzleSize*puzzleSize - 2); i++)
     {
-        // printf("%d\t", *pzl - prevValue);
         if(*pzl - prevValue != 1)
             return 0;
         prevValue = *pzl;
